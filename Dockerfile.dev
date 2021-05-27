@@ -1,0 +1,12 @@
+FROM golang:1.16.2
+
+RUN go get github.com/canthefason/go-watcher
+RUN go install github.com/canthefason/go-watcher/cmd/watcher@latest
+
+ADD . /go/src/github.com/ebalkanski/graphql/
+RUN cd /go/src/github.com/ebalkanski/graphql/ && go install github.com/ebalkanski/graphql/cmd/...
+
+WORKDIR /go/src/github.com/ebalkanski/graphql/
+EXPOSE 8080
+
+ENTRYPOINT ["sh", "-c", "/go/bin/watcher -run github.com/ebalkanski/graphql/cmd -watch github.com/ebalkanski/graphql"]

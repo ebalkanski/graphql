@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  graphql:
+    container_name: graphql
+    build:
+      context: $GOPATH/src/github.com/ebalkanski/graphql
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    volumes:
+      - "$GOPATH/src/github.com/ebalkanski/graphql:/go/src/github.com/ebalkanski/graphql"
+    ports:
+      - "8080:8080"
