@@ -1,24 +1,21 @@
 package graph
 
-import "github.com/ebalkanski/graphql/graph/model"
+import (
+	"github.com/ebalkanski/graphql/graph/model"
+	pb "github.com/ebalkanski/grpc/proto"
+)
 
 type Resolver struct {
+	grpc       pb.UsersClient
 	todos      []*model.Todo
-	users      []*model.User
-	usersChan  chan *model.User
 	lastTodoId int
-	lastUserId int
+	usersChan  chan *model.User
 }
 
-func NewResolver() *Resolver {
-	users := make([]*model.User, 0)
-	users = append(users, &model.User{ID: "1", Name: "fphilip"})
-	users = append(users, &model.User{ID: "2", Name: "lturanga"})
-
+func NewResolver(grpc pb.UsersClient) *Resolver {
 	return &Resolver{
-		todos:      make([]*model.Todo, 0),
-		users:      users,
-		usersChan:  make(chan *model.User),
-		lastUserId: 3,
+		grpc:      grpc,
+		todos:     make([]*model.Todo, 0),
+		usersChan: make(chan *model.User),
 	}
 }

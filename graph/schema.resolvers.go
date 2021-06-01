@@ -10,14 +10,23 @@ import (
 
 	"github.com/ebalkanski/graphql/graph/generated"
 	"github.com/ebalkanski/graphql/graph/model"
+	pb "github.com/ebalkanski/grpc/proto"
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	var targetUser *model.User
 
-	for _, user := range r.users {
-		if user.ID == input.UserID {
-			targetUser = user
+	resp, err := r.grpc.GetUsers(context.Background(), &pb.GetUsersRequest{})
+	if err != nil {
+		fmt.Printf("error getting users from grpc: %v\n", err)
+	}
+
+	for _, u := range resp.GetUsers() {
+		if u.GetName() == input.Text {
+			targetUser = &model.User{
+				ID:   string(u.GetId()),
+				Name: u.GetName(),
+			}
 			break
 		}
 	}
@@ -39,18 +48,17 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	for _, user := range r.users {
-		if user.Name == input.Name {
-			return nil, fmt.Errorf("user with name='%s' already exists", input.Name)
-		}
+	resp, err := r.grpc.CreateUser(ctx, &pb.CreateUserRequest{
+		Name: input.Name,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	newUser := &model.User{
-		ID:   strconv.Itoa(r.lastUserId),
-		Name: input.Name,
+		ID:   string(resp.GetUser().GetId()),
+		Name: resp.GetUser().GetName(),
 	}
-	r.users = append(r.users, newUser)
-	r.lastUserId++
 	r.usersChan <- newUser
 
 	return newUser, nil
@@ -61,7 +69,21 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 }
 
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	return r.users, nil
+	resp, err := r.grpc.GetUsers(context.Background(), &pb.GetUsersRequest{})
+	if err != nil {
+		fmt.Printf("error getting users from grpc: %v\n", err)
+	}
+
+	var users []*model.User
+	for _, u := range resp.GetUsers() {
+		user := &model.User{
+			ID:   string(u.GetId()),
+			Name: u.GetName(),
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
 }
 
 func (r *subscriptionResolver) UserAdded(ctx context.Context) (<-chan *model.User, error) {
