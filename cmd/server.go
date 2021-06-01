@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/ebalkanski/graphql/internal/clients"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"google.golang.org/grpc"
 
 	"github.com/ebalkanski/graphql/graph"
 	"github.com/ebalkanski/graphql/graph/generated"
-	pb "github.com/ebalkanski/grpc/proto"
 )
 
 const defaultPort = "8080"
@@ -22,15 +22,18 @@ func main() {
 		port = defaultPort
 	}
 
-	conn, err := grpc.Dial("grpc:8081", grpc.WithInsecure())
+	//create users client
+	usersClient, err := clients.New("grpc:8081")
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("error creating users client: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		if err := usersClient.Close(); err != nil {
+			log.Print("closing users client failed: %v", err)
+		}
+	}()
 
-	client := pb.NewUsersClient(conn)
-
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver(client)}))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: graph.NewResolver(usersClient)}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

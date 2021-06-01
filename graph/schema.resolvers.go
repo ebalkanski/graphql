@@ -10,23 +10,19 @@ import (
 
 	"github.com/ebalkanski/graphql/graph/generated"
 	"github.com/ebalkanski/graphql/graph/model"
-	pb "github.com/ebalkanski/grpc/proto"
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	var targetUser *model.User
 
-	resp, err := r.grpc.GetUsers(context.Background(), &pb.GetUsersRequest{})
+	users, err := r.client.Users(context.Background())
 	if err != nil {
 		fmt.Printf("error getting users from grpc: %v\n", err)
 	}
 
-	for _, u := range resp.GetUsers() {
-		if u.GetName() == input.Text {
-			targetUser = &model.User{
-				ID:   string(u.GetId()),
-				Name: u.GetName(),
-			}
+	for _, u := range users {
+		if u.Name == input.Text {
+			targetUser = u
 			break
 		}
 	}
@@ -48,20 +44,16 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	resp, err := r.grpc.CreateUser(ctx, &pb.CreateUserRequest{
+	u, err := r.client.CreateUser(ctx, &model.User{
+		ID:   "",
 		Name: input.Name,
 	})
 	if err != nil {
 		return nil, err
 	}
+	r.usersChan <- u
 
-	newUser := &model.User{
-		ID:   string(resp.GetUser().GetId()),
-		Name: resp.GetUser().GetName(),
-	}
-	r.usersChan <- newUser
-
-	return newUser, nil
+	return u, nil
 }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
@@ -69,18 +61,9 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 }
 
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	resp, err := r.grpc.GetUsers(context.Background(), &pb.GetUsersRequest{})
+	users, err := r.client.Users(context.Background())
 	if err != nil {
 		fmt.Printf("error getting users from grpc: %v\n", err)
-	}
-
-	var users []*model.User
-	for _, u := range resp.GetUsers() {
-		user := &model.User{
-			ID:   string(u.GetId()),
-			Name: u.GetName(),
-		}
-		users = append(users, user)
 	}
 
 	return users, nil
