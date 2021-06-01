@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"google.golang.org/grpc"
 
@@ -42,7 +43,7 @@ func (c *Client) Users(ctx context.Context) ([]*model.User, error) {
 	var users []*model.User
 	for _, u := range resp.GetUsers() {
 		users = append(users, &model.User{
-			ID:   string(u.GetId()),
+			ID:   strconv.FormatInt(int64(u.GetId()), 10),
 			Name: u.GetName(),
 		})
 	}
@@ -59,7 +60,7 @@ func (c *Client) CreateUser(ctx context.Context, u *model.User) (*model.User, er
 	}
 
 	return &model.User{
-		ID:   string(resp.GetUser().GetId()),
+		ID:   strconv.FormatInt(int64(resp.GetUser().GetId()), 10),
 		Name: resp.GetUser().GetName(),
 	}, nil
 }

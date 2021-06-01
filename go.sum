@@ -25,6 +25,8 @@ github.com/ebalkanski/grpc v0.0.0-20210601163349-92e86612faca h1:gi9OGfUnsmUED6v
 github.com/ebalkanski/grpc v0.0.0-20210601163349-92e86612faca/go.mod h1:HFCVynWBKBOODW4n5NzEY08aS9xaMbosIUDKQDs3zLk=
 github.com/ebalkanski/grpc v0.0.0-20210601184410-0c82ed6171ed h1:vO6JQIIz4+P3WfulJEeEW01OTH9oWpTUbQzWBHqhmOg=
 github.com/ebalkanski/grpc v0.0.0-20210601184410-0c82ed6171ed/go.mod h1:HFCVynWBKBOODW4n5NzEY08aS9xaMbosIUDKQDs3zLk=
+github.com/ebalkanski/grpc v0.0.0-20210601192641-4fe8d683c177 h1:Pr76lvU5S0Fr7kqhoB9+mbjd5dURqWilL8ooYyL7rtI=
+github.com/ebalkanski/grpc v0.0.0-20210601192641-4fe8d683c177/go.mod h1:2DF0KLWXwt5QaCh7uidB5u0voJkNxoIdI/G3JqVmNvA=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.9-0.20210217033140-668b12f5399d/go.mod h1:cXg6YxExXjJnVBQHBLXeUAgxn2UodCpnH306RInaBQk=
