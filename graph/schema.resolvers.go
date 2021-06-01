@@ -51,7 +51,9 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 	if err != nil {
 		return nil, err
 	}
-	//r.usersChan <- u
+	go func() {
+		r.usersChan <- u
+	}()
 
 	return u, nil
 }
