@@ -52,7 +52,10 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 		return nil, err
 	}
 	go func() {
-		r.usersChan <- u
+		select {
+		case r.usersChan <- u:
+		default:
+		}
 	}()
 
 	return u, nil
